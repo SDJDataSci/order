@@ -1,0 +1,111 @@
+@startuml
+class com.example.order.OrderApplication {
++ {static} void main(String[])
+}
+
+class com.order.dto.common.OrderCommonRes {
+- int statusCode
+- String message
+- Object data
+}
+
+enum com.order.enums.Order1Enum.OrderStep {
++  주문접수
++  입금확인
++  배송준비
++  배송중
++  배송완료
++  구매확정
++  주문취소
++  환불완료
++  반품준비
++  반품완료
+- String code
+- String description
++ String getCode()
++ String getDescription()
++ {static} OrderStep fromCode(String)
++ {static} String fromDescription(String)
+}
+
+
+class com.order.config.ExternalApiConfig {
+- String infoUrl
+- String createUrl
+}
+
+class com.order.controller.OrderController {
+- OrderService orderService
++ OrderCommonRes orderInfoGet(OrderReq)
++ ResponseEntity<String> orderCreate(OrderReq)
+}
+
+
+class com.order.service.impl.OrderServiceImpl {
+~ List<OrderReq> failedOrderList
+- ObjectMapper objectMapper
+- ExternalApiConfig externalConfig
+~ RestTemplate restTemplate
++ OrderRes getOrder(OrderReq)
++ HttpHeaders getHeaders()
++ void createOrder(OrderReq)
++ RestTemplate getRestTemplate()
+- JSONArray convertString2Json(ResponseEntity<String>)
+- OrderRes convertJson2List(JSONArray)
+}
+
+
+interface com.order.service.interfaces.OrderService {
+~ OrderRes getOrder(OrderReq)
+~ void createOrder(OrderReq)
+~ HttpHeaders getHeaders()
+~ RestTemplate getRestTemplate()
+}
+
+class com.order.dto.req.OrderReq {
+~ String orderId
+~ String customerName
+~ Date orderDate
+~ String orderStep
+}
+
+class com.order.dto.res.OrderRes {
+~ String orderId
+~ String customerName
+~ Date orderDate
+~ String orderStep
+}
+
+class com.order.exceptions.ApiException {
+- {static} long serialVersionUID
+- int statusCode
+- String message
+- Map<String,Object> data
+}
+
+class com.order.utils.DateUtil {
++ {static} Date convertString2Date(String)
+}
+
+enum com.order.enums.Order1Enum.ApiExceptionEnum {
++  SUCCESS
++  BAD_REQUEST
++  UNAUTHORIZED
++  NOT_FOUND
++  INTERNAL_SERVER_ERROR
++  PARSING_ERROR
+- int code
+- String message
+}
+
+class com.order.exceptions.CommonExceptionHandler {
++ OrderCommonRes handleException(Exception)
++ OrderCommonRes handleMethodArgumentTypeMismatchException(Exception)
++ OrderCommonRes handleApiException(ApiException)
+}
+
+
+
+com.order.service.interfaces.OrderService <|.. com.order.service.impl.OrderServiceImpl
+com.order.exceptions.RuntimeException <|-- com.order.exceptions.ApiException
+@enduml
